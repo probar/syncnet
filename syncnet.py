@@ -6,7 +6,7 @@ import SocketServer
 import enaml
 from enaml.qt.qt_application import QtApplication
 from PyQt4.QtCore import QFileSystemWatcher
-from atom.api import Atom, Unicode, observe, Typed, Property, Int
+from atom.api import Atom, Unicode, observe, Typed, Property, Int, Value
 
 from btsync import BTSync
 
@@ -33,6 +33,8 @@ class SyncNet(Atom):
 
     # Instance of the BTSync API wrapper.
     btsync = Typed(BTSync, ())
+
+    dns = Value()
 
     # The QUrl object referencing the currently displayed resource. It must be
     # replaced wholesale for the UI to react.
