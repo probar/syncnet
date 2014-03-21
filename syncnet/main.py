@@ -8,7 +8,7 @@ import shutil
 import enaml
 from enaml.qt.qt_application import QtApplication
 from PyQt4.QtCore import QFileSystemWatcher
-from atom.api import Atom, Unicode, observe, Typed, Property, Int
+from atom.api import Atom, Unicode, observe, Typed, Property, Int, Value
 
 from btsync import BTSync
 
@@ -35,6 +35,8 @@ class SyncNet(Atom):
 
     # Instance of the BTSync API wrapper.
     btsync = Typed(BTSync, ())
+
+    dns = Value()
 
     # The QUrl object referencing the currently displayed resource. It must be
     # replaced wholesale for the UI to react.
@@ -139,9 +141,20 @@ class SyncNet(Atom):
         a valid secret. If so, attempt to load that secret.
 
         """
-        address = self.address.upper()
-        if self.is_valid_secret(address):
-            self.load_secret(address)
+        address = self.address.lower()
+
+        try:
+            name = self.dns.clean_address(address)
+        except ValueError:
+            secret = self.address.upper()
+        else:
+            try:
+                secret = self.dns.get_secret(address.rsplit('.', 1)[-1])
+            except (IndexError, KeyError, IOError):
+                secret = self.address.upper()
+
+        if self.is_valid_secret(secret):
+            self.load_secret(secret)
 
     def on_directory_changed(self, dirname):
         """ Slot connected to the `QFileSystemWatcher.directoryChanged` Signal.
@@ -232,12 +245,24 @@ if __name__ == '__main__':
     with enaml.imports():
         from syncnet_view import SyncNetView
     syncnet = SyncNet()
+<<<<<<< HEAD:syncnet/main.py
     if getattr(sys, 'frozen', False):
         HERE = os.path.dirname(sys.executable)
         btsync_path = os.path.join(
             HERE, 'BitTorrent\ Sync.app/Contents/MacOS/BitTorrent\ Sync')
         syncnet.btsync.btsync_path = btsync_path
     syncnet.btsync.start()
+=======
+
+    from namecoin import get_proxy, Namecoin
+    namecoin = Namecoin(get_proxy('asdf', 'asdf'))
+
+    if namecoin.test_connection():
+        syncnet.dns = namecoin
+    else:
+        logger.warn('Failed to initialize connection to local namecoin instance.')
+
+>>>>>>> refs/remotes/Ademan-syncnet/namecoin:syncnet.py
     app = QtApplication()
     view = SyncNetView(model=syncnet)
     view.show()
