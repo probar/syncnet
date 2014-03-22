@@ -149,7 +149,7 @@ class SyncNet(Atom):
             secret = self.address.upper()
         else:
             try:
-                secret = self.dns.get_secret(address.rsplit('.', 1)[-1])
+                secret = self.dns.get_secret(name)
             except (IndexError, KeyError, IOError):
                 secret = self.address.upper()
 
@@ -245,14 +245,14 @@ if __name__ == '__main__':
     with enaml.imports():
         from syncnet_view import SyncNetView
     syncnet = SyncNet()
-<<<<<<< HEAD:syncnet/main.py
+
     if getattr(sys, 'frozen', False):
         HERE = os.path.dirname(sys.executable)
         btsync_path = os.path.join(
             HERE, 'BitTorrent\ Sync.app/Contents/MacOS/BitTorrent\ Sync')
         syncnet.btsync.btsync_path = btsync_path
     syncnet.btsync.start()
-=======
+
 
     from namecoin import get_proxy, Namecoin
     namecoin = Namecoin(get_proxy('asdf', 'asdf'))
@@ -262,7 +262,7 @@ if __name__ == '__main__':
     else:
         logger.warn('Failed to initialize connection to local namecoin instance.')
 
->>>>>>> refs/remotes/Ademan-syncnet/namecoin:syncnet.py
+
     app = QtApplication()
     view = SyncNetView(model=syncnet)
     view.show()
